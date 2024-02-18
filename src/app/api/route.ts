@@ -2,8 +2,10 @@ import OpenAI from "openai";
 import { transformSync } from "@babel/core";
 import presetReact from "@babel/preset-react";
 
-export async function GET(req: Request): Promise<Response> {
+export async function POST(req: Request): Promise<Response> {
+  const { inputText: prompt } = await req.json();
   console.log("---------------------fetching");
+  console.log("prompt", prompt);
   const openai = new OpenAI();
   const completion = await openai.chat.completions.create({
     messages: [
@@ -14,8 +16,7 @@ export async function GET(req: Request): Promise<Response> {
       },
       {
         role: "user",
-        content:
-          "Get me a glass of water. I'm feeling paranoid. I need to hydrate.",
+        content: prompt,
       },
     ],
     model: "gpt-4-0125-preview",
@@ -23,6 +24,7 @@ export async function GET(req: Request): Promise<Response> {
   });
 
   // const code = `function MyComponent() { return <div>🚰</div>; }`;
+  const jsxCode = completion.choices[0].message.content;
 
   if (!transformSync) {
     return Response.json(
@@ -34,9 +36,13 @@ export async function GET(req: Request): Promise<Response> {
     );
   }
 
-  const jsCode = transformSync(completion.choices[0].message.content, {
+  console.log("jsxCode", jsxCode);
+
+  const jsCode = transformSync(jsxCode, {
     presets: [presetReact],
   }).code;
+
+  console.log("jsCode", jsCode);
 
   return Response.json(
     { component: jsCode },
