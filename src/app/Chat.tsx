@@ -8,9 +8,10 @@ interface IComponent {
 }
 
 interface Message {
-  user: "you" | "bot";
+  user: "user" | "ai";
   type: "text" | "component";
   content: string | IComponent;
+  jsx?: string;
 }
 
 export default function Chat() {
@@ -18,17 +19,22 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
 
-  const handleClick = async () => {
+  const handleSend = async () => {
     setLoading(true);
     setMessages((prev) => [
       ...prev,
-      { type: "text", content: inputRef.current?.value || "", user: "you" },
+      { type: "text", content: inputRef.current?.value || "", user: "user" },
     ]);
     const inputText = inputRef.current?.value;
-    console.log("inputText", inputText);
     const res = await fetch("/api", {
       method: "POST",
-      body: JSON.stringify({ inputText }),
+      body: JSON.stringify({
+        inputText,
+        messageHistory: messages.map((m) => ({
+          content: m.type === "text" ? m.content : m.jsx,
+          role: m.user,
+        })),
+      }),
       headers: {
         "Content-Type": "application/json",
       },
@@ -40,13 +46,18 @@ export default function Chat() {
     );
     setMessages((prev) => [
       ...prev,
-      { type: "component", content: ComponentFunction, user: "bot" },
+      {
+        type: "component",
+        content: ComponentFunction,
+        user: "ai",
+        jsx: data.jsx,
+      },
     ]);
   };
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="flex flex-col gap-6">
+    <div className="flex flex-col items-center gap-6 border-4 border-gray-500 max-w-screen-sm w-full h-[700px] rounded justify-between">
+      <div className="flex self-start flex-col gap-6 overflow-y-scroll w-full text-lg p-6">
         {messages.length > 0 &&
           messages.map((message, i) => {
             if (message.type === "text") {
@@ -59,19 +70,27 @@ export default function Chat() {
             } else {
               const Component = message.content as IComponent;
               return (
-                <div key={i}>
-                  <span className="font-bold">{message.user}</span>:{" "}
-                  <Component />
+                <div className="flex flex-col gap-2" key={i}>
+                  <div
+                    className={`font-bold ${
+                      message.user === "ai" ? "text-blue-600" : ""
+                    }`}
+                  >
+                    {message.user}:
+                  </div>
+                  <div className="border border-blue-600 rounded p-4">
+                    <Component />
+                  </div>
                 </div>
               );
             }
           })}
       </div>
-      <div className="flex gap-3">
-        <input ref={inputRef} className="p-3" type="text" />
+      <div className="flex w-full gap-3 border-t border-gray-500 p-6">
+        <input ref={inputRef} className="p-3 w-full" type="text" />
         <button
           disabled={loading}
-          onClick={handleClick}
+          onClick={handleSend}
           className="border border-gray-500 p-3 hover:cursor-pointer"
         >
           {loading ? <LoadingSpinner /> : "Send"}

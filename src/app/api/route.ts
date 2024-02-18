@@ -23,7 +23,7 @@ export async function POST(req: Request): Promise<Response> {
     temperature: 1,
   });
 
-  // const code = `function MyComponent() { return <div>🚰</div>; }`;
+  // const jsxCode = `function MyComponent() { return <div>🚰</div>; }`;
   const jsxCode = completion.choices[0].message.content;
 
   if (!transformSync) {
@@ -45,7 +45,7 @@ export async function POST(req: Request): Promise<Response> {
   console.log("jsCode", jsCode);
 
   return Response.json(
-    { component: jsCode },
+    { component: jsCode, jsx: jsxCode },
     {
       headers: { "Content-Type": "application/javascript" },
     },
