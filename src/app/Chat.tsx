@@ -20,12 +20,14 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
 
   const handleSend = async () => {
+    const inputText = inputRef.current?.value;
+    if (!inputText) return;
+    inputRef.current.value = "";
     setLoading(true);
     setMessages((prev) => [
       ...prev,
-      { type: "text", content: inputRef.current?.value || "", user: "user" },
+      { type: "text", content: inputText || "", user: "user" },
     ]);
-    const inputText = inputRef.current?.value;
     const res = await fetch("/api", {
       method: "POST",
       body: JSON.stringify({
@@ -87,7 +89,17 @@ export default function Chat() {
           })}
       </div>
       <div className="flex w-full gap-3 border-t border-gray-500 p-6">
-        <input ref={inputRef} className="p-3 w-full" type="text" />
+        <input
+          placeholder="Say something..."
+          ref={inputRef}
+          className="p-3 w-full"
+          type="text"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSend();
+            }
+          }}
+        />
         <button
           disabled={loading}
           onClick={handleSend}
