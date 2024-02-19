@@ -43,25 +43,35 @@ export default function Chat() {
     });
     setLoading(false);
     const data = await res.json();
-    const ComponentFunction = new Function("React", `return ${data.component}`)(
-      React,
-    );
-    setMessages((prev) => [
-      ...prev,
-      {
-        type: "component",
-        content: ComponentFunction,
-        user: "assistant",
-        jsx: data.jsx,
-      },
-    ]);
+
+    if (data.type === "text") {
+      setMessages((prev) => [
+        ...prev,
+        { type: "text", content: data.content, user: "assistant" },
+      ]);
+    } else {
+      const ComponentFunction = new Function(
+        "React",
+        `return ${data.component}`,
+      )(React);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: "component",
+          content: ComponentFunction,
+          user: "assistant",
+          jsx: data.jsx,
+        },
+      ]);
+    }
   };
 
   console.log(messages);
 
   return (
     <div className="flex flex-col items-center gap-6 border-4 border-gray-500 max-w-screen-sm w-full h-[700px] rounded justify-between">
-      <div className="flex self-start flex-col gap-6 overflow-y-scroll w-full text-lg p-8">
+      <div className="flex self-start flex-col gap-6 overflow-y-scroll w-full text-lg p-8 pb-0">
         {messages.length > 0 &&
           messages.map((message, i) => {
             if (message.type === "text") {
