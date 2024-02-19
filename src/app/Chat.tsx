@@ -108,7 +108,7 @@ export default function Chat() {
         <input
           placeholder="Say something..."
           ref={inputRef}
-          className="p-3 w-full"
+          className="p-3 w-full border border-gray-500"
           type="text"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -116,13 +116,19 @@ export default function Chat() {
             }
           }}
         />
-        <button
-          disabled={loading}
-          onClick={handleSend}
-          className="border border-gray-500 p-3 hover:cursor-pointer"
-        >
-          {loading ? <LoadingSpinner /> : "Send"}
-        </button>
+        {loading ? (
+          <div className="flex items-center justify-center p-3">
+            <LoadingSpinner />
+          </div>
+        ) : (
+          <button
+            disabled={loading}
+            onClick={handleSend}
+            className="border border-gray-500 p-3 hover:cursor-pointer hover:text-blue-500 hover:border-blue-500"
+          >
+            Send
+          </button>
+        )}
       </div>
     </div>
   );
