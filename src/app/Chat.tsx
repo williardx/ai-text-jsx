@@ -19,6 +19,12 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
 
+  const handleError = (err: Error | string) => {
+    console.error(err);
+    alert("An error occurred. Please try again.");
+    setLoading(false);
+  };
+
   const handleSend = async () => {
     const inputText = inputRef.current?.value;
     if (!inputText) return;
@@ -30,20 +36,32 @@ export default function Chat() {
       { type: "text", content: inputText || "", user: "user" },
     ]);
 
-    const res = await fetch("/api", {
-      method: "POST",
-      body: JSON.stringify({
-        inputText,
-        messageHistory: messages.map((m) => ({
-          content: m.type === "text" ? m.content : m.jsx,
-          role: m.user,
-        })),
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    let res: Response;
+    try {
+      res = await fetch("/api/chat", {
+        method: "POST",
+        body: JSON.stringify({
+          inputText,
+          messageHistory: messages.map((m) => ({
+            content: m.type === "text" ? m.content : m.jsx,
+            role: m.user,
+          })),
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (err) {
+      const error = err as Error;
+      handleError(error);
+      return;
+    }
+
     const data = await res.json();
+    if (res.status !== 200) {
+      handleError(data.error || "An unknown error occurred.");
+      return;
+    }
 
     setLoading(false);
 
