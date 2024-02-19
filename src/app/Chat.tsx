@@ -1,11 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, FC as ReactComponent } from "react";
 import LoadingSpinner from "./LoadingSpinner";
-
-interface ReactComponent {
-  (): JSX.Element;
-}
 
 interface Message {
   user: "user" | "assistant";
