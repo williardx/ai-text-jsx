@@ -67,8 +67,6 @@ export default function Chat() {
     }
   };
 
-  console.log(messages);
-
   return (
     <div className="flex flex-col items-center gap-6 border-4 border-gray-500 max-w-screen-sm w-full h-[700px] rounded justify-between">
       <div className="flex self-start flex-col gap-6 overflow-y-scroll w-full text-lg p-8 pb-0">
@@ -77,8 +75,14 @@ export default function Chat() {
             if (message.type === "text") {
               return (
                 <div key={i}>
-                  <span className="font-bold">{message.user}</span>:{" "}
-                  {message.content as string}
+                  <span
+                    className={`font-bold ${
+                      message.user === "assistant" ? "text-blue-600" : ""
+                    }`}
+                  >
+                    {message.user}
+                  </span>
+                  : {message.content as string}
                 </div>
               );
             } else {
