@@ -77,7 +77,7 @@ export default function Chat() {
           messages.map((message, i) => {
             if (message.type === "text") {
               return (
-                <div key={i}>
+                <div key={`${message.type}-${message.user}-${i}`}>
                   <span
                     className={`font-bold ${
                       message.user === "assistant" ? "text-blue-600" : ""
@@ -91,7 +91,10 @@ export default function Chat() {
             } else {
               const Component = message.content as ReactComponent;
               return (
-                <div className="flex flex-col gap-2" key={i}>
+                <div
+                  className="flex flex-col gap-2"
+                  key={`${message.type}-${message.user}-${i}`}
+                >
                   <div
                     className={`font-bold ${
                       message.user === "assistant" ? "text-blue-600" : ""

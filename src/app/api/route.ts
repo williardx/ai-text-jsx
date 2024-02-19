@@ -23,8 +23,7 @@ const SYSTEM_PROMPT = `
 
 export async function POST(req: Request): Promise<Response> {
   const { inputText: prompt, messageHistory } = await req.json();
-  console.log("messageHistory", messageHistory);
-  console.log("prompt", prompt);
+
   const openai = new OpenAI();
   const messages = [
     {
