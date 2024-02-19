@@ -62,20 +62,18 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const jsxCode = aiResponse.content?.replace("```jsx", "")?.replace("```", "");
+  const transformationResult = transformSync(jsxCode, {
+    presets: [presetReact],
+  });
 
-  if (!transformSync) {
+  if (!transformationResult || !transformationResult.code) {
     return Response.json(
-      {
-        error:
-          "Babel is not available in the current environment. Please try again later.",
-      },
+      { error: "Transformation failed. JSX code could not be transformed." },
       { status: 500 },
     );
   }
 
-  const jsCode = transformSync(jsxCode, {
-    presets: [presetReact],
-  }).code;
+  const jsCode = transformationResult.code;
 
   return Response.json(
     { component: jsCode, jsx: jsxCode },
