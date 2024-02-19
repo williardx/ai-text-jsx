@@ -2,6 +2,8 @@ import OpenAI from "openai";
 import { transformSync } from "@babel/core";
 import presetReact from "@babel/preset-react";
 
+export const maxDuration = 300;
+
 const SYSTEM_PROMPT = `
   You are a creative coder. You can respond with plain text, but you can also respond
   with React components. How you choose to respond is up to you. 
