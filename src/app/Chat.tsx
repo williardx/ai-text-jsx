@@ -3,14 +3,14 @@
 import React, { useState, useRef } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 
-interface IComponent {
+interface ReactComponent {
   (): JSX.Element;
 }
 
 interface Message {
-  user: "user" | "ai";
+  user: "user" | "assistant";
   type: "text" | "component";
-  content: string | IComponent;
+  content: string | ReactComponent;
   jsx?: string;
 }
 
@@ -51,15 +51,17 @@ export default function Chat() {
       {
         type: "component",
         content: ComponentFunction,
-        user: "ai",
+        user: "assistant",
         jsx: data.jsx,
       },
     ]);
   };
 
+  console.log(messages);
+
   return (
     <div className="flex flex-col items-center gap-6 border-4 border-gray-500 max-w-screen-sm w-full h-[700px] rounded justify-between">
-      <div className="flex self-start flex-col gap-6 overflow-y-scroll w-full text-lg p-6">
+      <div className="flex self-start flex-col gap-6 overflow-y-scroll w-full text-lg p-8">
         {messages.length > 0 &&
           messages.map((message, i) => {
             if (message.type === "text") {
@@ -70,12 +72,12 @@ export default function Chat() {
                 </div>
               );
             } else {
-              const Component = message.content as IComponent;
+              const Component = message.content as ReactComponent;
               return (
                 <div className="flex flex-col gap-2" key={i}>
                   <div
                     className={`font-bold ${
-                      message.user === "ai" ? "text-blue-600" : ""
+                      message.user === "assistant" ? "text-blue-600" : ""
                     }`}
                   >
                     {message.user}:
@@ -88,7 +90,7 @@ export default function Chat() {
             }
           })}
       </div>
-      <div className="flex w-full gap-3 border-t border-gray-500 p-6">
+      <div className="flex w-full gap-3 border-t border-gray-500 p-8">
         <input
           placeholder="Say something..."
           ref={inputRef}
