@@ -23,11 +23,13 @@ export default function Chat() {
     const inputText = inputRef.current?.value;
     if (!inputText) return;
     inputRef.current.value = "";
+
     setLoading(true);
     setMessages((prev) => [
       ...prev,
       { type: "text", content: inputText || "", user: "user" },
     ]);
+
     const res = await fetch("/api", {
       method: "POST",
       body: JSON.stringify({
@@ -41,8 +43,9 @@ export default function Chat() {
         "Content-Type": "application/json",
       },
     });
-    setLoading(false);
     const data = await res.json();
+
+    setLoading(false);
 
     if (data.type === "text") {
       setMessages((prev) => [
