@@ -12,6 +12,13 @@ const SYSTEM_PROMPT = `
   to what the user asks. The component must be a functional component and must 
   be defined with the 'function' keyword, for example, 'function MyComponent() {...}'. 
   Do not use 'const MyComponent = () => {...}'. All styling must be done inline. 
+  The component must accept a prop called "callback" and must call it when the
+  user modifies the state of the component with the current state. You can do
+  this by adding a "useEffect" that depends on the state. For example, if you
+  have two state variables called "var1" and "var2", you can do "React.useEffect(() => {
+  callback({ var1, var2 }); }, [var1, var2]);". The useEffect must include
+  every state variable that's in the component. The function MUST
+  be passed in as a prop like this: 'function MyComponent({ callback }) {...}'.
   You can use any hooks that you want but must namespace it with React, for example, 
   'React.useState' instead of 'useState'. You have liberty to be extremely creative 
   and to add in interactivity in your components. Do NOT include any formatting 
@@ -26,6 +33,8 @@ const SYSTEM_PROMPT = `
 export async function POST(req: Request): Promise<Response> {
   const { inputText: prompt, messageHistory } = await req.json();
 
+  console.log(messageHistory);
+
   const openai = new OpenAI();
   const messages = [
     {
@@ -38,6 +47,8 @@ export async function POST(req: Request): Promise<Response> {
       content: prompt,
     },
   ];
+
+  // console.log(JSON.stringify(messageHistory));
   const completion = await openai.chat.completions.create({
     messages,
     model: "gpt-4-0125-preview",
@@ -57,6 +68,13 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const aiResponse = JSON.parse(completion.choices[0].message.content);
+
+  // const aiResponse = {
+  //   type: "component",
+  //   content:
+  //     "function CounterComponent({ callback }) { const [count, setCount] = React.useState(0); React.useEffect(() => { callback({ count }); }, [count]); return ( <div style={{ textAlign: 'center', padding: '20px' }}> <p>{`Count: ${count}`}</p> <button onClick={() => setCount(count + 1)} style={{ fontSize: '16px', padding: '10px 20px', cursor: 'pointer' }}> Click me </button> </div> ); }",
+  // };
+
   if (aiResponse.type === "text") {
     return Response.json(aiResponse, {
       headers: { "Content-Type": "application/javascript" },

@@ -1,14 +1,9 @@
 "use client";
 
-import React, { useState, useRef, FC as ReactComponent } from "react";
-import LoadingSpinner from "./LoadingSpinner";
-
-interface Message {
-  user: "user" | "assistant";
-  type: "text" | "component";
-  content: string | ReactComponent;
-  jsx?: string;
-}
+import React, { useState, useRef } from "react";
+import LoadingSpinner from "./components/LoadingSpinner";
+import StateHistoryTracker from "./components/StateHistoryTracker";
+import type { LLMComponent, Message } from "./types";
 
 export default function Chat() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -38,8 +33,13 @@ export default function Chat() {
         method: "POST",
         body: JSON.stringify({
           inputText,
-          messageHistory: messages.map((m) => ({
-            content: m.type === "text" ? m.content : m.jsx,
+          messageHistory: messages.map((m, idx) => ({
+            content:
+              m.type === "text"
+                ? m.content
+                : `Component: ${m.jsx}\n\nUser interaction history: ${
+                    JSON.stringify(m.stateHistory) ?? []
+                  } }`,
             role: m.user,
           })),
         }),
@@ -64,7 +64,11 @@ export default function Chat() {
     if (data.type === "text") {
       setMessages((prev) => [
         ...prev,
-        { type: "text", content: data.content, user: "assistant" },
+        {
+          type: "text",
+          content: data.content,
+          user: "assistant",
+        },
       ]);
     } else {
       const ComponentFunction = new Function(
@@ -84,6 +88,8 @@ export default function Chat() {
     }
   };
 
+  console.log(messages);
+
   return (
     <div className="flex flex-col items-center gap-6 border-4 border-gray-500 max-w-screen-sm w-full h-[700px] rounded justify-between">
       <div className="flex self-start flex-col gap-6 overflow-y-scroll w-full text-lg p-8 pb-0">
@@ -102,8 +108,24 @@ export default function Chat() {
                   : {message.content as string}
                 </div>
               );
-            } else {
-              const Component = message.content as ReactComponent;
+            } else if (message.type === "component") {
+              const LLMComponent = message.content as LLMComponent;
+              const onStateHistoryChange = (stateHistory: any[]) => {
+                // Update the message to include the state history
+                // so that we can send it back to the LLM.
+                if (stateHistory.length === 0) return;
+                setMessages((prev) => {
+                  const updatedMessages = [...prev];
+                  const currentMessage = updatedMessages[i];
+                  if (currentMessage.type !== "component")
+                    return updatedMessages;
+                  updatedMessages[i] = {
+                    ...currentMessage,
+                    stateHistory,
+                  };
+                  return updatedMessages;
+                });
+              };
               return (
                 <div
                   className="flex flex-col gap-2"
@@ -117,10 +139,15 @@ export default function Chat() {
                     {message.user}:
                   </div>
                   <div className="border border-blue-600 rounded p-4">
-                    <Component />
+                    <StateHistoryTracker
+                      onStateHistoryChange={onStateHistoryChange}
+                      component={LLMComponent}
+                    />
                   </div>
                 </div>
               );
+            } else {
+              throw new Error("Unrecognized message type");
             }
           })}
       </div>
