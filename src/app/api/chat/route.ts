@@ -33,8 +33,6 @@ const SYSTEM_PROMPT = `
 export async function POST(req: Request): Promise<Response> {
   const { inputText: prompt, messageHistory } = await req.json();
 
-  console.log(messageHistory);
-
   const openai = new OpenAI();
   const messages = [
     {
@@ -69,6 +67,7 @@ export async function POST(req: Request): Promise<Response> {
 
   const aiResponse = JSON.parse(completion.choices[0].message.content);
 
+  // Test component response
   // const aiResponse = {
   //   type: "component",
   //   content:
