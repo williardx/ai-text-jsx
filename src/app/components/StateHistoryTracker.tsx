@@ -15,7 +15,6 @@ export default function StateHistoryTracker({
 
   useEffect(() => {
     if (stateHistory.length === prevHistoryLengthRef.current) return;
-    console.log("useEffect!");
     onStateHistoryChange(stateHistory);
     prevHistoryLengthRef.current = stateHistory.length;
   }, [stateHistory, onStateHistoryChange]);
