@@ -11,16 +11,13 @@ export default function StateHistoryTracker({
   component: Component,
 }: StateHistoryTrackerProps) {
   const [stateHistory, setStateHistory] = useState<any[]>([]);
-  const prevHistoryLengthRef = useRef<number>(0);
-
-  useEffect(() => {
-    if (stateHistory.length === prevHistoryLengthRef.current) return;
-    onStateHistoryChange(stateHistory);
-    prevHistoryLengthRef.current = stateHistory.length;
-  }, [stateHistory, onStateHistoryChange]);
 
   const callback = (state: any) => {
-    setStateHistory((prev) => [...prev, state]);
+    setStateHistory((prev) => {
+      const newState = [...prev, state];
+      onStateHistoryChange(newState);
+      return newState;
+    });
   };
 
   return <Component callback={callback} />;
