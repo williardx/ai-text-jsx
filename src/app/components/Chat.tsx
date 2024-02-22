@@ -37,9 +37,11 @@ export default function Chat() {
             content:
               m.type === "text"
                 ? m.content
-                : `Component: ${m.jsx}\n\nUser interaction history: ${
-                    JSON.stringify(m.stateHistory) ?? []
-                  } }`,
+                : `Component: ${
+                    m.jsx
+                  }\n\nUser interaction history: ${JSON.stringify(
+                    m.stateHistory ?? [],
+                  )} }`,
             role: m.user,
           })),
         }),
