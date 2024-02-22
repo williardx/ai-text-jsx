@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import LoadingSpinner from "./components/LoadingSpinner";
-import StateHistoryTracker from "./components/StateHistoryTracker";
-import type { LLMComponent, Message } from "./types";
+import LoadingSpinner from "./LoadingSpinner";
+import StateHistoryTracker from "./StateHistoryTracker";
+import type { LLMComponent, Message } from "../types";
 
 export default function Chat() {
   const inputRef = useRef<HTMLInputElement>(null);
